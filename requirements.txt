@@ -1,0 +1,19 @@
+# Machine Learning & Data
+pandas
+numpy
+scikit-learn
+prophet
+requests
+
+# MLOps & Tracking
+mlflow
+evidently
+
+# API & Serving
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Utils
+python-dotenv
+pytest

@@ -1,0 +1,15 @@
+creation_timestamp: 1769036581235
+current_stage: Production
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1769036637759
+model_id: m-7be26baa52de498badd3265fa4e75879
+name: Weather_RF_Model
+run_id: a9e61cebae4641de844bfbf5778c25ab
+run_link: null
+source: models:/m-7be26baa52de498badd3265fa4e75879
+status: READY
+status_message: null
+storage_location: file:///home/momo/noaa-weather-mlops-pipeline/mlruns/903167453739546316/models/m-7be26baa52de498badd3265fa4e75879/artifacts
+user_id: null
+version: 1

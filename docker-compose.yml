@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # Service 1 : Serveur de tracking MLflow
+  mlflow:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mlflow_server
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/mlruns
+    command: mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlruns --host 0.0.0.0
+    networks:
+      - weather-network
+
+  # Service 2 : API de prédiction FastAPI
+  weather-api:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    container_name: weather_prediction_api
+    ports:
+      - "8000:8000"
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    depends_on:
+      - mlflow
+    networks:
+      - weather-network
+
+networks:
+  weather-network:
+    driver: bridge

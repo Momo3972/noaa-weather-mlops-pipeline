@@ -1,0 +1,10 @@
+artifact_location: file:///home/momo/noaa-weather-mlops-pipeline/mlruns/903167453739546316/models/m-7be26baa52de498badd3265fa4e75879/artifacts
+creation_timestamp: 1769036577118
+experiment_id: '903167453739546316'
+last_updated_timestamp: 1769036581167
+model_id: m-7be26baa52de498badd3265fa4e75879
+model_type: null
+name: weather_model
+source_run_id: a9e61cebae4641de844bfbf5778c25ab
+status: 2
+status_message: null

@@ -1,0 +1,14 @@
+artifact_uri: file:///home/momo/noaa-weather-mlops-pipeline/mlruns/903167453739546316/a9e61cebae4641de844bfbf5778c25ab/artifacts
+end_time: 1769036581247
+entry_point_name: ''
+experiment_id: '903167453739546316'
+lifecycle_stage: active
+run_id: a9e61cebae4641de844bfbf5778c25ab
+run_name: Registry_Initialization
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1769036576853
+status: 3
+tags: []
+user_id: momo

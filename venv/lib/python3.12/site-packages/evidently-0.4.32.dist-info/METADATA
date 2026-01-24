@@ -1,0 +1,293 @@
+Metadata-Version: 2.1
+Name: evidently
+Version: 0.4.32
+Summary: Open-source tools to analyze, monitor, and debug machine learning model in production.
+Home-page: https://github.com/evidentlyai/evidently
+Author: Emeli Dral
+Author-email: emeli.dral@gmail.com
+License: UNKNOWN
+Platform: Linux
+Platform: Mac OS X
+Platform: Windows
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: plotly >=5.10.0
+Requires-Dist: statsmodels >=0.12.2
+Requires-Dist: scikit-learn >=1.0.1
+Requires-Dist: pandas[parquet] >=1.3.5
+Requires-Dist: numpy >=1.22.0
+Requires-Dist: nltk >=3.6.7
+Requires-Dist: scipy >=1.10.0
+Requires-Dist: requests >=2.32.0
+Requires-Dist: PyYAML >=5.4
+Requires-Dist: pydantic >=1.10.13
+Requires-Dist: litestar >=2.8.3
+Requires-Dist: typing-inspect >=0.9.0
+Requires-Dist: uvicorn[standard] >=0.22.0
+Requires-Dist: watchdog >=3.0.0
+Requires-Dist: typer >=0.3
+Requires-Dist: rich >=13
+Requires-Dist: iterative-telemetry >=0.0.5
+Requires-Dist: dynaconf >=3.2.4
+Requires-Dist: certifi >=2024.7.4
+Requires-Dist: urllib3 >=1.26.19
+Requires-Dist: fsspec >=2024.2.0
+Requires-Dist: ujson >=5.4.0
+Requires-Dist: opentelemetry-api >=1.25.0
+Requires-Dist: opentelemetry-sdk >=1.25.0
+Requires-Dist: opentelemetry-proto >=1.25.0
+Requires-Dist: opentelemetry-exporter-otlp-proto-grpc >=1.25.0
+Requires-Dist: opentelemetry-exporter-otlp-proto-http >=1.25.0
+Provides-Extra: dev
+Requires-Dist: pip-audit >=2.7.2 ; extra == 'dev'
+Requires-Dist: wheel ==0.38.1 ; extra == 'dev'
+Requires-Dist: jupyter ==1.0.0 ; extra == 'dev'
+Requires-Dist: mypy ==0.981 ; extra == 'dev'
+Requires-Dist: pytest ==7.4.4 ; extra == 'dev'
+Requires-Dist: types-PyYAML ==6.0.1 ; extra == 'dev'
+Requires-Dist: types-requests ==2.26.0 ; extra == 'dev'
+Requires-Dist: types-dataclasses ==0.6 ; extra == 'dev'
+Requires-Dist: types-python-dateutil ==2.8.19 ; extra == 'dev'
+Requires-Dist: types-ujson >=5.4.0 ; extra == 'dev'
+Requires-Dist: pillow ==10.3.0 ; extra == 'dev'
+Requires-Dist: httpx ==0.24.1 ; extra == 'dev'
+Requires-Dist: ruff ==0.3.7 ; extra == 'dev'
+Requires-Dist: pre-commit ==3.5.0 ; extra == 'dev'
+Requires-Dist: pytest-asyncio ==0.23.7 ; extra == 'dev'
+Requires-Dist: setuptools ==65.5.1 ; (python_version < "3.12") and extra == 'dev'
+Requires-Dist: setuptools ==68.2.2 ; (python_version >= "3.12") and extra == 'dev'
+Provides-Extra: fsspec
+Requires-Dist: fsspec[full] >=2024.2.0 ; extra == 'fsspec'
+Provides-Extra: llm
+Requires-Dist: openai >=1.16.2 ; extra == 'llm'
+Requires-Dist: evaluate >=0.4.1 ; extra == 'llm'
+Requires-Dist: transformers[torch] >=4.39.3 ; extra == 'llm'
+Requires-Dist: sentence-transformers >=2.7.0 ; extra == 'llm'
+Provides-Extra: spark
+Requires-Dist: pyspark >=3.4.0 ; extra == 'spark'
+
+<h1 align="center">Evidently</h1>
+
+<p align="center"><b>An open-source framework to evaluate, test and monitor ML and LLM-powered systems.</b></p>
+
+<p align="center">
+<a href="https://pepy.tech/project/evidently" target="_blank"><img src="https://pepy.tech/badge/evidently" alt="PyPi Downloads"></a>
+<a href="https://github.com/evidentlyai/evidently/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/evidentlyai/evidently" alt="License"></a>
+<a href="https://pypi.org/project/evidently/" target="_blank"><img src="https://img.shields.io/pypi/v/evidently" alt="PyPi"></a>
+
+![Evidently](/docs/images/gh_header.png)
+
+</p>
+<p align="center">
+  <a href="https://docs.evidentlyai.com">Documentation</a>
+  |
+  <a href="https://discord.gg/xZjKRaNp8b">Discord Community</a>
+  |
+  <a href="https://evidentlyai.com/blog">Blog</a>
+  |
+  <a href="https://twitter.com/EvidentlyAI">Twitter</a>
+  |
+  <a href="https://www.evidentlyai.com/register">Evidently Cloud</a>
+</p>
+
+# :new: New release
+
+**Evidently 0.4.25**. LLM evaluation -> [Tutorial](https://docs.evidentlyai.com/get-started/tutorial-llm)
+
+# :bar_chart: What is Evidently?
+
+Evidently is an open-source Python library for ML and LLM evaluation and observability. It helps evaluate, test, and monitor AI-powered systems and data pipelines from experimentation to production. 
+
+* 🔡 Works with tabular, text data, and embeddings.
+* ✨ Supports predictive and generative systems, from classification to RAG.
+* 📚 100+ built-in metrics from data drift detection to LLM judges.
+* 🛠️ Python interface for custom metrics and tests. 
+* 🚦 Both offline evals and live monitoring.
+* 💻 Open architecture: easily export data and integrate with existing tools. 
+
+Evidently is very modular. You can start with one-off evaluations using `Reports` or `Test Suites` in Python or get a real-time monitoring `Dashboard` service.
+
+## 1. Reports
+
+**Reports** compute various data, ML and LLM quality metrics. You can start with Presets or customize.
+* Out-of-the-box interactive visuals.
+* Best for exploratory analysis and debugging.
+* Get results in Python, export as JSON, Python dictionary, HTML, DataFrame, or view in monitoring UI.
+
+| Reports |
+|--|
+|![Report example](docs/book/.gitbook/assets/main/reports-min.png)|
+
+## 2. Test Suites
+
+**Test Suites** check for defined conditions on metric values and return a pass or fail result.
+* Best for regression testing, CI/CD checks, or data validation pipelines.
+* Zero setup option: auto-generate test conditions from the reference dataset.
+* Simple syntax to set custom test conditions as `gt` (greater than), `lt` (less than), etc.
+* Get results in Python, export as JSON, Python dictionary, HTML, DataFrame, or view in monitoring UI.
+
+| Test Suite |
+|--|
+|![Test example](docs/book/.gitbook/assets/main/tests.gif)|
+
+## 3. Monitoring Dashboard
+
+**Monitoring UI** service helps visualize metrics and test results over time.
+
+You can choose:
+* Self-host the open-source version. [Live demo](https://demo.evidentlyai.com).
+* Sign up for [Evidently Cloud](https://www.evidentlyai.com/register) (Recommended).
+
+Evidently Cloud offers a generous free tier and extra features like user management, alerting, and no-code evals.
+
+| Dashboard |
+|--|
+|![Dashboard example](docs/book/.gitbook/assets/main/dashboard.gif)|
+
+# :woman_technologist: Install Evidently
+
+Evidently is available as a PyPI package. To install it using pip package manager, run:
+
+```sh
+pip install evidently
+```
+To install Evidently using conda installer, run:
+
+```sh
+conda install -c conda-forge evidently
+```
+
+# :arrow_forward: Getting started
+
+### Option 1: Test Suites
+> This is a simple Hello World. Check the Tutorials for more: [Tabular data](https://docs.evidentlyai.com/get-started/tutorial) or [LLM evaluation](https://docs.evidentlyai.com/get-started/tutorial-llm).
+
+Import the **Test Suite**, evaluation Preset and toy tabular dataset.
+
+```python
+import pandas as pd
+
+from sklearn import datasets
+
+from evidently.test_suite import TestSuite
+from evidently.test_preset import DataStabilityTestPreset
+
+iris_data = datasets.load_iris(as_frame='auto')
+iris_frame = iris_data.frame
+```
+
+Split the `DataFrame` into reference and current. Run the **Data Stability** Test Suite that will automatically generate checks on column value ranges, missing values, etc. from the reference. Get the output in Jupyter notebook:
+
+```python
+data_stability= TestSuite(tests=[
+    DataStabilityTestPreset(),
+])
+data_stability.run(current_data=iris_frame.iloc[:60], reference_data=iris_frame.iloc[60:], column_mapping=None)
+data_stability
+```
+
+You can also save an HTML file. You'll need to open it from the destination folder.
+
+```python
+data_stability.save_html("file.html")
+```
+
+To get the output as JSON:
+```python
+data_stability.json()
+```
+You can choose other Presets, individual Tests and set conditions.
+
+### Option 2: Reports
+
+Import the **Report**, evaluation Preset and toy tabular dataset.
+
+```python
+import pandas as pd
+
+from sklearn import datasets
+
+from evidently.report import Report
+from evidently.metric_preset import DataDriftPreset
+
+iris_data = datasets.load_iris(as_frame='auto')
+iris_frame = iris_data.frame
+```
+
+Run the **Data Drift** Report that will compare column distributions between `current` and `reference`:
+```python
+data_drift_report = Report(metrics=[
+    DataDriftPreset(),
+])
+
+data_drift_report.run(current_data=iris_frame.iloc[:60], reference_data=iris_frame.iloc[60:], column_mapping=None)
+data_drift_report
+
+```
+Save the report as HTML. You'll later need to open it from the destination folder.
+```python
+data_drift_report.save_html("file.html")
+```
+
+To get the output as JSON:
+```python
+data_drift_report.json()
+```
+
+You can choose other Presets and individual Metrics, including LLM evaluations for text data.
+
+### Option 3: ML monitoring dashboard
+> This launches a demo project in the Evidently UI. Check complete tutorials for [Self-hosting](https://docs.evidentlyai.com/get-started/tutorial-monitoring) or [Evidently Cloud](https://docs.evidentlyai.com/get-started/tutorial-cloud).
+
+Recommended step: create a virtual environment and activate it.
+```
+pip install virtualenv
+virtualenv venv
+source venv/bin/activate
+```
+
+After installing Evidently (`pip install evidently`), run the Evidently UI with the demo projects:
+```
+evidently ui --demo-projects all
+```
+
+Access Evidently UI service in your browser. Go to the **localhost:8000**.
+
+# 🚦 What can you evaluate?
+
+Evidently has 100+ built-in evals. You can also add custom ones. Each metric has an optional visualization: you can use it in `Reports`, `Test Suites`, or plot on a `Dashboard`.
+
+Here are examples of things you can check:
+
+|                           |                          |
+|:-------------------------:|:------------------------:|
+| **🔡 Text descriptors**   | **📝 LLM outputs**       |
+| Length, sentiment, toxicity, language, special symbols, regular expression matches, etc. | Semantic similarity, retrieval relevance, summarization quality, etc. with model- and LLM-based evals. |
+| **🛢 Data quality**       | **📊 Data distribution drift** |
+| Missing values, duplicates, min-max ranges, new categorical values, correlations, etc. | 20+ statistical tests and distance metrics to compare shifts in data distribution. |
+| **🎯 Classification**     | **📈 Regression**        |
+| Accuracy, precision, recall, ROC AUC, confusion matrix, bias, etc. | MAE, ME, RMSE, error distribution, error normality, error bias, etc. |
+| **🗂 Ranking (inc. RAG)** | **🛒 Recommendations**   |
+| NDCG, MAP, MRR, Hit Rate, etc. | Serendipity, novelty, diversity, popularity bias, etc. |
+
+
+# :computer: Contributions
+We welcome contributions! Read the [Guide](CONTRIBUTING.md) to learn more.
+
+# :books: Documentation
+For more information, refer to a complete <a href="https://docs.evidentlyai.com">Documentation</a>. You can start with the tutorials:
+* [Get Started with Tabular and ML Evaluation](https://docs.evidentlyai.com/get-started/tutorial)
+* [Get Started with LLM Evaluation](https://docs.evidentlyai.com/get-started/tutorial-llm)
+* [Self-hosting ML monitoring Dashboard](https://docs.evidentlyai.com/get-started/tutorial-monitoring)
+* [Cloud ML monitoring Dashboard](https://docs.evidentlyai.com/get-started/tutorial-cloud)
+
+See more examples in the [Docs](https://docs.evidentlyai.com/examples).
+
+## How-to guides
+Explore the [How-to guides](https://github.com/evidentlyai/evidently/tree/main/examples/how_to_questions) to understand specific features in Evidently.
+
+# :white_check_mark: Discord Community
+If you want to chat and connect, join our [Discord community](https://discord.gg/xZjKRaNp8b)!
+
+

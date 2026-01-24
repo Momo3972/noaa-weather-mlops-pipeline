@@ -1,0 +1,22 @@
+artifact_path: file:///home/momo/noaa-weather-mlops-pipeline/mlruns/903167453739546316/models/m-4d165dedb1954e06b412cb35c0e02b38/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.3
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+mlflow_version: 3.8.1
+model_id: m-4d165dedb1954e06b412cb35c0e02b38
+model_size_bytes: 2544245
+model_uuid: m-4d165dedb1954e06b412cb35c0e02b38
+prompts: null
+run_id: 29e905da7b9843ed8a4745d19cd6a470
+utc_time_created: '2026-01-21 22:03:46.652441'
