@@ -56,7 +56,7 @@ noaa-weather-mlops-pipeline/
 - Missing value handling
 - Feature engineering and dataset validation
 
-### 2. Training & Experiment Tracking (`src/train.py`)
+### 2. Training et Experiment Tracking (`src/train.py`)
 
 - Random Forest regression model
 - Hyperparameters, metrics (MSE), and artifacts logged to MLflow
@@ -79,26 +79,26 @@ noaa-weather-mlops-pipeline/
 
 ---
 
-## Figures & Execution Evidence
+## Figures et Execution Evidence
 
 All screenshots below are available in `docs/assets/` and rendered directly on GitHub
 
-### MLflow Model Registry — Production Model
+### MLflow Model Registry - Production Model
 ![MLflow Registry](docs/assets/mlflow-registry.png)
 
-### CI/CD Pipeline — GitHub Actions Success
+### CI/CD Pipeline - GitHub Actions Success
 ![GitHub Actions](docs/assets/github-actions-success.png)
 
-### Airflow — Scheduled Retraining DAG
+### Airflow - Scheduled Retraining DAG
 ![Airflow DAG](docs/assets/interface-apache-airflow.png)
 
-### FastAPI — Interactive Swagger Documentation
+### FastAPI - Interactive Swagger Documentation
 ![Swagger UI](docs/assets/swagger-noaa.png)
 
-### MLflow — Experiment Runs & Metrics
+### MLflow - Experiment Runs et Metrics
 ![MLflow Runs](docs/assets/mlflow-runs.png)
 
-### Docker — Multi-Container Stack Running
+### Docker - Multi-Container Stack Running
 ![Docker Containers](docs/assets/docker-containers.png)
 
 ---
@@ -151,4 +151,4 @@ docker-compose up -d --build
 ## Author
 
 **Mohamed Lamine OULD BOUYA**  
-Data Engineering · MLOps · Machine Learning
+Data Engineering - MLOps - Machine Learning
