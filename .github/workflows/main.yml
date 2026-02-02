@@ -22,8 +22,22 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt pytest httpx fastapi
 
+      - name: Prepare Mock Environment for Tests
+        run: |
+          # Création de la structure attendue par l'API pour éviter la 503
+          mkdir -p mlruns
+          mkdir -p data
+          touch data/raw_weather.csv
+          # On définit l'URI de tracking en local pour le job
+          echo "MLFLOW_TRACKING_URI=file://$(pwd)/mlruns" >> $GITHUB_ENV
+
       - name: Run Unit Tests
-        run: pytest tests/test_api.py
+        run: |
+          # On lance les tests. L'API utilisera le mlruns vide ou mocké créé au-dessus
+          pytest tests/test_api.py
+        env:
+          MODEL_NAME: "Weather_RF_Model"
+          MODEL_STAGE: "None" 
 
       - name: Scan Dockerfile for vulnerabilities
         uses: hadolint/hadolint-action@v3.1.0
