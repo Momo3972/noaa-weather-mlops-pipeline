@@ -1,6 +1,6 @@
-# NOAA Weather — Pipeline MLOps Industriel End-to-End
+# NOAA Weather - Pipeline MLOps Industriel End-to-End
 
-> Cette documentation est également disponible en anglais : [README.md](README.md)
+Cette documentation est également disponible en anglais : [README.md](README.md)
 
 ## Présentation générale
 
@@ -11,9 +11,9 @@ L’ensemble de l’infrastructure est conteneurisé, orchestré et automatisé,
 
 ---
 
-## Objectifs & Valeur Métier
+## Objectifs et Valeur Métier
 
-Ce projet vise à démontrer la conception d’un **système ML robuste, traçable et observable** :
+Ce projet vise à démontrer la conception d’un système ML robuste, traçable et observable :
 
 - Automatisation complète - De l’ingestion NOAA à la mise en production du modèle
 - Gouvernance des modèles - Suivi des expériences et gestion du cycle de vie via MLflow Model Registry
@@ -48,7 +48,7 @@ noaa-weather-mlops-pipeline/
 
 ## Composants techniques
 
-### 1. Ingestion & Préparation des données (`src/ingestion.py`)
+### 1. Ingestion et Préparation des données (`src/ingestion.py`)
 
 - Récupération automatisée des données NOAA
 - Nettoyage des valeurs manquantes
@@ -81,22 +81,22 @@ noaa-weather-mlops-pipeline/
 
 Les captures ci-dessous sont disponibles dans `docs/assets/` et s’affichent directement sur GitHub
 
-### Registre MLflow — Modèle certifié en production
+### Registre MLflow - Modèle certifié en production
 ![MLflow Registry](docs/assets/mlflow-registry.png)
 
-### CI/CD — Pipeline GitHub Actions validé
+### CI/CD - Pipeline GitHub Actions validé
 ![GitHub Actions](docs/assets/github-actions-success.png)
 
-### Airflow — DAG de réentraînement planifié
+### Airflow - DAG de réentraînement planifié
 ![Airflow DAG](docs/assets/interface-apache-airflow.png)
 
-### FastAPI — Documentation Swagger interactive
+### FastAPI - Documentation Swagger interactive
 ![Swagger UI](docs/assets/swagger-noaa.png)
 
-### MLflow — Historique des runs et métriques
+### MLflow - Historique des runs et métriques
 ![MLflow Runs](docs/assets/mlflow-runs.png)
 
-### Docker — Stack multi-conteneurs opérationnelle
+### Docker - Stack multi-conteneurs opérationnelle
 ![Docker Containers](docs/assets/docker-containers.png)
 
 ---
@@ -126,7 +126,7 @@ docker-compose up -d --build
 
 ---
 
-## Tests & CI/CD
+## Tests et CI/CD
 
 - Tests unitaires et tests API exécutés à chaque push
 - Linting Dockerfile (Hadolint)
@@ -149,4 +149,4 @@ docker-compose up -d --build
 ## Auteur
 
 **Mohamed Lamine OULD BOUYA**  
-Data Engineering · MLOps · Machine Learning
+Data Engineering - MLOps - Machine Learning
