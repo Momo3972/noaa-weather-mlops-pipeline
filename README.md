@@ -1,7 +1,7 @@
 
 # NOAA Weather - Industrial End-to-End MLOps Pipeline
 
-> This documentation is also available in French: [README_FR.md](README_FR.md)
+This documentation is also available in French: [README_FR.md](README_FR.md)
 
 
 ## Overview
