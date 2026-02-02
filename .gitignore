@@ -1,0 +1,18 @@
+# Environnement virtuel
+venv/
+.env
+
+# MLflow data
+mlruns/
+.trash/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Résidus Windows/WSL
+*.Identifier
+
+# Logs Airflow
+airflow/logs/
+airflow/airflow.db

@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Service 1 : Serveur de tracking MLflow
+  # --- INFRASTRUCTURE MLFLOW (Mode Filesystem Direct) ---
   mlflow:
     build:
       context: .
@@ -11,22 +11,94 @@ services:
       - "5000:5000"
     volumes:
       - ./mlruns:/mlruns
-    command: mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlruns --host 0.0.0.0
+    # Le serveur lit directement les fichiers YAML générés par votre script
+    command: mlflow server --backend-store-uri /mlruns --default-artifact-root /mlruns --host 0.0.0.0
     networks:
       - weather-network
 
-  # Service 2 : API de prédiction FastAPI
+  # --- API DE PRÉDICTION ---
   weather-api:
     build:
       context: .
       dockerfile: app/Dockerfile
     container_name: weather_prediction_api
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
     depends_on:
       - mlflow
+    networks:
+      - weather-network
+
+  # --- BASE DE DONNÉES AIRFLOW ---
+  postgres:
+    image: postgres:13
+    container_name: airflow_db
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - weather-network
+
+  # --- INITIALISATION AIRFLOW ---
+  airflow-init:
+    image: apache/airflow:2.7.1
+    container_name: airflow_init
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+    command: bash -c "airflow db init && airflow users create --username admin --firstname admin --lastname admin --role Admin --email admin@example.com --password admin || true"
+    networks:
+      - weather-network
+
+  # --- AIRFLOW WEBSERVER ---
+  airflow-webserver:
+    image: apache/airflow:2.7.1
+    container_name: airflow_webserver
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    environment:
+      - EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - _PIP_ADDITIONAL_REQUIREMENTS=mlflow pandas scikit-learn
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - ./data:/opt/airflow/data
+      - ./mlruns:/mlruns
+    ports:
+      - "8080:8080"
+    command: webserver
+    networks:
+      - weather-network
+
+  # --- AIRFLOW SCHEDULER ---
+  airflow-scheduler:
+    image: apache/airflow:2.7.1
+    container_name: airflow_scheduler
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    environment:
+      - EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - _PIP_ADDITIONAL_REQUIREMENTS=mlflow pandas scikit-learn
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - ./data:/opt/airflow/data
+      - ./mlruns:/mlruns
+    command: scheduler
     networks:
       - weather-network
 

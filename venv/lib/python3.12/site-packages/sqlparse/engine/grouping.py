@@ -7,42 +7,18 @@
 
 from sqlparse import sql
 from sqlparse import tokens as T
-from sqlparse.exceptions import SQLParseError
 from sqlparse.utils import recurse, imt
-
-# Maximum recursion depth for grouping operations to prevent DoS attacks
-# Set to None to disable limit (not recommended for untrusted input)
-MAX_GROUPING_DEPTH = 100
-
-# Maximum number of tokens to process in one grouping operation to prevent
-# DoS attacks.
-# Set to None to disable limit (not recommended for untrusted input)
-MAX_GROUPING_TOKENS = 10000
 
 T_NUMERICAL = (T.Number, T.Number.Integer, T.Number.Float)
 T_STRING = (T.String, T.String.Single, T.String.Symbol)
 T_NAME = (T.Name, T.Name.Placeholder)
 
 
-def _group_matching(tlist, cls, depth=0):
+def _group_matching(tlist, cls):
     """Groups Tokens that have beginning and end."""
-    if MAX_GROUPING_DEPTH is not None and depth > MAX_GROUPING_DEPTH:
-        raise SQLParseError(
-            f"Maximum grouping depth exceeded ({MAX_GROUPING_DEPTH})."
-        )
-
-    # Limit the number of tokens to prevent DoS attacks
-    if MAX_GROUPING_TOKENS is not None \
-       and len(tlist.tokens) > MAX_GROUPING_TOKENS:
-        raise SQLParseError(
-            f"Maximum number of tokens exceeded ({MAX_GROUPING_TOKENS})."
-        )
-
     opens = []
     tidx_offset = 0
-    token_list = list(tlist)
-
-    for idx, token in enumerate(token_list):
+    for idx, token in enumerate(list(tlist)):
         tidx = idx - tidx_offset
 
         if token.is_whitespace:
@@ -55,7 +31,7 @@ def _group_matching(tlist, cls, depth=0):
             # Check inside previously grouped (i.e. parenthesis) if group
             # of different type is inside (i.e., case). though ideally  should
             # should check for all open/close tokens at once to avoid recursion
-            _group_matching(token, cls, depth + 1)
+            _group_matching(token, cls)
             continue
 
         if token.match(*cls.M_OPEN):
@@ -480,27 +456,13 @@ def _group(tlist, cls, match,
            valid_next=lambda t: True,
            post=None,
            extend=True,
-           recurse=True,
-           depth=0
+           recurse=True
            ):
     """Groups together tokens that are joined by a middle token. i.e. x < y"""
-    if MAX_GROUPING_DEPTH is not None and depth > MAX_GROUPING_DEPTH:
-        raise SQLParseError(
-            f"Maximum grouping depth exceeded ({MAX_GROUPING_DEPTH})."
-        )
-
-    # Limit the number of tokens to prevent DoS attacks
-    if MAX_GROUPING_TOKENS is not None \
-       and len(tlist.tokens) > MAX_GROUPING_TOKENS:
-        raise SQLParseError(
-            f"Maximum number of tokens exceeded ({MAX_GROUPING_TOKENS})."
-        )
 
     tidx_offset = 0
     pidx, prev_ = None, None
-    token_list = list(tlist)
-
-    for idx, token in enumerate(token_list):
+    for idx, token in enumerate(list(tlist)):
         tidx = idx - tidx_offset
         if tidx < 0:  # tidx shouldn't get negative
             continue
@@ -509,8 +471,7 @@ def _group(tlist, cls, match,
             continue
 
         if recurse and token.is_group and not isinstance(token, cls):
-            _group(token, cls, match, valid_prev, valid_next,
-                   post, extend, True, depth + 1)
+            _group(token, cls, match, valid_prev, valid_next, post, extend)
 
         if match(token):
             nidx, next_ = tlist.token_next(tidx)

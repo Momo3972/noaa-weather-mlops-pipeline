@@ -1,10 +1,8 @@
 """Block-level tokenizer."""
-
 from __future__ import annotations
 
-from collections.abc import Callable
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from . import rules_block
 from .ruler import Ruler

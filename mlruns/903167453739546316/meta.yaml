@@ -1,6 +1,0 @@
-artifact_location: file:///home/momo/noaa-weather-mlops-pipeline/mlruns/903167453739546316
-creation_time: 1769033026347
-experiment_id: '903167453739546316'
-last_update_time: 1769033026347
-lifecycle_stage: active
-name: NOAA_Weather_Project

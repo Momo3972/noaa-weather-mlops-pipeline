@@ -2,7 +2,6 @@
 http://jgm.github.io/CommonMark/spec.html#html-blocks
 """
 
-# see https://spec.commonmark.org/0.31.2/#html-blocks
 block_names = [
     "address",
     "article",
@@ -53,8 +52,8 @@ block_names = [
     "option",
     "p",
     "param",
-    "search",
     "section",
+    "source",
     "summary",
     "table",
     "tbody",

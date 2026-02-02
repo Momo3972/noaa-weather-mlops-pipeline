@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # Copyright (C) 2009-2020 the sqlparse authors and contributors
 # <see AUTHORS file>
 #
@@ -34,26 +36,16 @@ def create_parser():
         prog='sqlformat',
         description='Format FILE according to OPTIONS. Use "-" as FILE '
                     'to read from stdin.',
-        usage='%(prog)s [OPTIONS] FILE [FILE ...]',
+        usage='%(prog)s  [OPTIONS] FILE, ...',
     )
 
-    parser.add_argument(
-        'filename',
-        nargs='+',
-        help='file(s) to format (use "-" for stdin)')
+    parser.add_argument('filename')
 
     parser.add_argument(
         '-o', '--outfile',
         dest='outfile',
         metavar='FILE',
         help='write output to FILE (defaults to stdout)')
-
-    parser.add_argument(
-        '--in-place',
-        dest='inplace',
-        action='store_true',
-        default=False,
-        help='format files in-place (overwrite existing files)')
 
     parser.add_argument(
         '--version',
@@ -68,7 +60,7 @@ def create_parser():
         dest='keyword_case',
         choices=_CASE_CHOICES,
         help='change case of keywords, CHOICE is one of {}'.format(
-            ', '.join(f'"{x}"' for x in _CASE_CHOICES)))
+            ', '.join('"{}"'.format(x) for x in _CASE_CHOICES)))
 
     group.add_argument(
         '-i', '--identifiers',
@@ -76,7 +68,7 @@ def create_parser():
         dest='identifier_case',
         choices=_CASE_CHOICES,
         help='change case of identifiers, CHOICE is one of {}'.format(
-            ', '.join(f'"{x}"' for x in _CASE_CHOICES)))
+            ', '.join('"{}"'.format(x) for x in _CASE_CHOICES)))
 
     group.add_argument(
         '-l', '--language',
@@ -165,21 +157,15 @@ def create_parser():
 
 def _error(msg):
     """Print msg and optionally exit with return code exit_."""
-    sys.stderr.write(f'[ERROR] {msg}\n')
+    sys.stderr.write('[ERROR] {}\n'.format(msg))
     return 1
 
 
-def _process_file(filename, args):
-    """Process a single file with the given formatting options.
+def main(args=None):
+    parser = create_parser()
+    args = parser.parse_args(args)
 
-    Returns 0 on success, 1 on error.
-    """
-    # Check for incompatible option combinations first
-    if filename == '-' and args.inplace:
-        return _error('Cannot use --in-place with stdin')
-
-    # Read input
-    if filename == '-':  # read from stdin
+    if args.filename == '-':  # read from stdin
         wrapper = TextIOWrapper(sys.stdin.buffer, encoding=args.encoding)
         try:
             data = wrapper.read()
@@ -187,34 +173,27 @@ def _process_file(filename, args):
             wrapper.detach()
     else:
         try:
-            with open(filename, encoding=args.encoding) as f:
+            with open(args.filename, encoding=args.encoding) as f:
                 data = ''.join(f.readlines())
         except OSError as e:
-            return _error(f'Failed to read {filename}: {e}')
+            return _error(
+                'Failed to read {}: {}'.format(args.filename, e))
 
-    # Determine output destination
     close_stream = False
-    if args.inplace:
-        try:
-            stream = open(filename, 'w', encoding=args.encoding)
-            close_stream = True
-        except OSError as e:
-            return _error(f'Failed to open {filename}: {e}')
-    elif args.outfile:
+    if args.outfile:
         try:
             stream = open(args.outfile, 'w', encoding=args.encoding)
             close_stream = True
         except OSError as e:
-            return _error(f'Failed to open {args.outfile}: {e}')
+            return _error('Failed to open {}: {}'.format(args.outfile, e))
     else:
         stream = sys.stdout
 
-    # Format the SQL
     formatter_opts = vars(args)
     try:
         formatter_opts = sqlparse.formatter.validate_options(formatter_opts)
     except SQLParseError as e:
-        return _error(f'Invalid options: {e}')
+        return _error('Invalid options: {}'.format(e))
 
     s = sqlparse.format(data, **formatter_opts)
     stream.write(s)
@@ -222,25 +201,3 @@ def _process_file(filename, args):
     if close_stream:
         stream.close()
     return 0
-
-
-def main(args=None):
-    parser = create_parser()
-    args = parser.parse_args(args)
-
-    # Validate argument combinations
-    if len(args.filename) > 1:
-        if args.outfile:
-            return _error('Cannot use -o/--outfile with multiple files')
-        if not args.inplace:
-            return _error('Multiple files require --in-place flag')
-
-    # Process all files
-    exit_code = 0
-    for filename in args.filename:
-        result = _process_file(filename, args)
-        if result != 0:
-            exit_code = result
-            # Continue processing remaining files even if one fails
-
-    return exit_code

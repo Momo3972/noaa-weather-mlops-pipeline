@@ -112,7 +112,9 @@ def link(state: StateInline, silent: bool) -> bool:
 
         label = normalizeReference(label)
 
-        ref = state.env["references"].get(label, None)
+        ref = (
+            state.env["references"][label] if label in state.env["references"] else None
+        )
         if not ref:
             state.pos = oldPos
             return False

@@ -112,7 +112,7 @@ class FSMap(MutableMapping):
             for k, v in out.items()
         }
         return {
-            key: out[k2] if on_error == "raise" else out.get(k2, KeyError(k2))
+            key: out[k2]
             for key, k2 in zip(keys, keys2)
             if on_error == "return" or not isinstance(out[k2], BaseException)
         }
@@ -153,10 +153,10 @@ class FSMap(MutableMapping):
         k = self._key_to_str(key)
         try:
             result = self.fs.cat(k)
-        except self.missing_exceptions as exc:
+        except self.missing_exceptions:
             if default is not None:
                 return default
-            raise KeyError(key) from exc
+            raise KeyError(key)
         return result
 
     def pop(self, key, default=None):
@@ -184,8 +184,8 @@ class FSMap(MutableMapping):
         """Remove key"""
         try:
             self.fs.rm(self._key_to_str(key))
-        except Exception as exc:
-            raise KeyError from exc
+        except:  # noqa: E722
+            raise KeyError
 
     def __contains__(self, key):
         """Does key exist in mapping?"""

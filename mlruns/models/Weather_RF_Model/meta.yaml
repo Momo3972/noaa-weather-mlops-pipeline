@@ -1,7 +1,8 @@
-aliases: {}
-creation_timestamp: 1769036581233
+aliases:
+  production: '1'
+creation_timestamp: 1769987712884
 deployment_job_id: null
 deployment_job_state: null
 description: null
-last_updated_timestamp: 1769036637759
+last_updated_timestamp: 1769988213622
 name: Weather_RF_Model

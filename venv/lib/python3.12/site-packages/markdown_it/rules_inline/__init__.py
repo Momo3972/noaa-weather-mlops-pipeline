@@ -1,19 +1,19 @@
 __all__ = (
     "StateInline",
-    "autolink",
-    "backtick",
-    "emphasis",
-    "entity",
-    "escape",
+    "text",
     "fragments_join",
-    "html_inline",
-    "image",
-    "link",
     "link_pairs",
     "linkify",
+    "escape",
     "newline",
+    "backtick",
+    "emphasis",
+    "image",
+    "link",
+    "autolink",
+    "entity",
+    "html_inline",
     "strikethrough",
-    "text",
 )
 from . import emphasis, strikethrough
 from .autolink import autolink
