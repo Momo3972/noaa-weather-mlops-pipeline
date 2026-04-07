@@ -1,0 +1,55 @@
+# ============================================================
+# .dockerignore — Fichiers exclus des images Docker
+# Réduit la taille des images et évite de copier des données sensibles
+# ============================================================
+
+# Contrôle de version
+.git/
+.gitignore
+.github/
+
+# Environnements Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# MLflow — données locales volumineuses
+mlruns/
+mlartifacts/
+
+# Variables d'environnement (JAMAIS dans une image)
+.env
+*.env
+
+# Tests et documentation
+tests/
+docs/
+*.md
+AUDIT_AMELIORATIONS.md
+
+# Données brutes (montées via volume en production)
+data/
+
+# Monitoring (monté via volume)
+monitoring/
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Airflow
+airflow/logs/
+airflow/airflow.db
+
+# CI/CD
+Makefile

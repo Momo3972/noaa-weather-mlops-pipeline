@@ -1,7 +1,14 @@
-version: '3.8'
+# ============================================================
+# NOAA Weather MLOps — Stack multi-conteneurs
+# Pré-requis : copier .env.example en .env et renseigner les valeurs
+# Démarrage  : make up  (ou docker-compose up -d --build)
+# ============================================================
 
 services:
-  # --- INFRASTRUCTURE MLFLOW (Mode Filesystem Direct) ---
+
+  # ----------------------------------------------------------------
+  # MLflow — Tracking server & Model Registry
+  # ----------------------------------------------------------------
   mlflow:
     build:
       context: .
@@ -11,12 +18,25 @@ services:
       - "5000:5000"
     volumes:
       - ./mlruns:/mlruns
-    # Le serveur lit directement les fichiers YAML générés par votre script
-    command: mlflow server --backend-store-uri /mlruns --default-artifact-root /mlruns --host 0.0.0.0
+    command: >
+      mlflow server
+      --backend-store-uri /mlruns
+      --default-artifact-root /mlruns
+      --host 0.0.0.0
+      --port 5000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     networks:
       - weather-network
+    restart: unless-stopped
 
-  # --- API DE PRÉDICTION ---
+  # ----------------------------------------------------------------
+  # API de prédiction FastAPI
+  # ----------------------------------------------------------------
   weather-api:
     build:
       context: .
@@ -25,83 +45,146 @@ services:
     ports:
       - "8001:8000"
     environment:
-      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI:-http://mlflow:5000}
+      - MODEL_NAME=${MODEL_NAME:-Weather_RF_Model}
+      - MODEL_ALIAS=${MODEL_ALIAS:-production}
+    volumes:
+      - ./mlruns:/mlruns
     depends_on:
-      - mlflow
+      mlflow:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     networks:
       - weather-network
+    restart: unless-stopped
 
-  # --- BASE DE DONNÉES AIRFLOW ---
+  # ----------------------------------------------------------------
+  # PostgreSQL — Base de données Airflow
+  # ----------------------------------------------------------------
   postgres:
-    image: postgres:13
+    image: postgres:15-alpine
     container_name: airflow_db
     environment:
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=airflow
-      - POSTGRES_DB=airflow
+      - POSTGRES_USER=${POSTGRES_USER:-airflow}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD est requis dans .env}
+      - POSTGRES_DB=${POSTGRES_DB:-airflow}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U airflow"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-airflow}"]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
       - weather-network
+    restart: unless-stopped
 
-  # --- INITIALISATION AIRFLOW ---
+  # ----------------------------------------------------------------
+  # Airflow — Initialisation (one-shot)
+  # ----------------------------------------------------------------
   airflow-init:
-    image: apache/airflow:2.7.1
+    image: apache/airflow:2.9.1-python3.11
     container_name: airflow_init
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-    command: bash -c "airflow db init && airflow users create --username admin --firstname admin --lastname admin --role Admin --email admin@example.com --password admin || true"
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB:-airflow}
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW_FERNET_KEY:-}
+    command: >
+      bash -c "
+        airflow db migrate &&
+        airflow users create
+          --username admin
+          --firstname Admin
+          --lastname User
+          --role Admin
+          --email admin@example.com
+          --password admin || true
+      "
     networks:
       - weather-network
 
-  # --- AIRFLOW WEBSERVER ---
+  # ----------------------------------------------------------------
+  # Airflow — Webserver
+  # ----------------------------------------------------------------
   airflow-webserver:
-    image: apache/airflow:2.7.1
+    image: apache/airflow:2.9.1-python3.11
     container_name: airflow_webserver
     depends_on:
       airflow-init:
         condition: service_completed_successfully
     environment:
-      - EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-      - _PIP_ADDITIONAL_REQUIREMENTS=mlflow pandas scikit-learn
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB:-airflow}
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI:-http://mlflow:5000}
+      - MODEL_NAME=${MODEL_NAME:-Weather_RF_Model}
+      - PROMOTION_RMSE_THRESHOLD=${PROMOTION_RMSE_THRESHOLD:-3.0}
+      - _PIP_ADDITIONAL_REQUIREMENTS=scikit-learn==1.4.2 mlflow==2.16.2 evidently==0.4.33 pandas==2.2.2 numpy==1.26.4 requests==2.32.3 python-dotenv==1.0.1
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./src:/opt/airflow/src
       - ./data:/opt/airflow/data
       - ./mlruns:/mlruns
+      - ./monitoring:/opt/airflow/monitoring
+      - airflow_logs:/opt/airflow/logs
     ports:
       - "8080:8080"
     command: webserver
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     networks:
       - weather-network
+    restart: unless-stopped
 
-  # --- AIRFLOW SCHEDULER ---
+  # ----------------------------------------------------------------
+  # Airflow — Scheduler
+  # ----------------------------------------------------------------
   airflow-scheduler:
-    image: apache/airflow:2.7.1
+    image: apache/airflow:2.9.1-python3.11
     container_name: airflow_scheduler
     depends_on:
       airflow-init:
         condition: service_completed_successfully
     environment:
-      - EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-      - _PIP_ADDITIONAL_REQUIREMENTS=mlflow pandas scikit-learn
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB:-airflow}
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI:-http://mlflow:5000}
+      - MODEL_NAME=${MODEL_NAME:-Weather_RF_Model}
+      - PROMOTION_RMSE_THRESHOLD=${PROMOTION_RMSE_THRESHOLD:-3.0}
+      - _PIP_ADDITIONAL_REQUIREMENTS=scikit-learn==1.4.2 mlflow==2.16.2 evidently==0.4.33 pandas==2.2.2 numpy==1.26.4 requests==2.32.3 python-dotenv==1.0.1
+      - GIT_PYTHON_REFRESH=quiet
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./src:/opt/airflow/src
       - ./data:/opt/airflow/data
       - ./mlruns:/mlruns
+      - ./monitoring:/opt/airflow/monitoring
+      - airflow_logs:/opt/airflow/logs
     command: scheduler
     networks:
       - weather-network
+    restart: unless-stopped
 
+# ============================================================
+# Volumes nommés — persistance des données entre redémarrages
+# ============================================================
+volumes:
+  postgres_data:
+  airflow_logs:
+
+# ============================================================
+# Réseau isolé
+# ============================================================
 networks:
   weather-network:
     driver: bridge

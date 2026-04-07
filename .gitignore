@@ -9,6 +9,7 @@ mlruns/
 # Python cache
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # Résidus Windows/WSL
 *.Identifier
@@ -16,3 +17,6 @@ __pycache__/
 # Logs Airflow
 airflow/logs/
 airflow/airflow.db
+
+# Fichiers de démonstration locale (usage personnel uniquement)
+DEMO_LOCAL.md

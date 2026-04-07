@@ -2,65 +2,105 @@ name: MLOps CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+
+env:
+  PYTHON_VERSION: "3.11"
+  MODEL_NAME: "Weather_RF_Model"
 
 jobs:
+  # ============================================================
+  # JOB 1 — Intégration continue : tests + linting
+  # ============================================================
   continuous-integration:
+    name: Tests & Qualité
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout du code
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Mise en place de Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install dependencies
+      # Cache pip pour accélérer les runs suivants
+      - name: Cache des dépendances pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Installation des dépendances
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt pytest httpx fastapi
+          pip install -r requirements.txt
 
-      - name: Prepare Mock Environment for Tests
+      - name: Préparation de l'environnement de test (mock MLflow)
         run: |
-          # Création de la structure attendue par l'API pour éviter la 503
-          mkdir -p mlruns
-          mkdir -p data
+          mkdir -p mlruns data
           touch data/raw_weather.csv
-          # On définit l'URI de tracking en local pour le job
           echo "MLFLOW_TRACKING_URI=file://$(pwd)/mlruns" >> $GITHUB_ENV
+          echo "MODEL_NAME=${{ env.MODEL_NAME }}" >> $GITHUB_ENV
 
-      - name: Run Unit Tests
+      - name: Exécution des tests unitaires (pytest)
         run: |
-          # On lance les tests. L'API utilisera le mlruns vide ou mocké créé au-dessus
-          pytest tests/test_api.py
+          pytest tests/test_api.py -v --tb=short
         env:
-          MODEL_NAME: "Weather_RF_Model"
-          MODEL_STAGE: "None" 
+          MLFLOW_TRACKING_URI: "file://${{ github.workspace }}/mlruns"
 
-      - name: Scan Dockerfile for vulnerabilities
+      - name: Scan Dockerfile (Hadolint)
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: app/Dockerfile
 
+      - name: Scan Dockerfile principal (Hadolint)
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+
+  # ============================================================
+  # JOB 2 — Build & Push Docker (uniquement sur push vers main)
+  # ============================================================
   build-and-push-docker:
+    name: Build & Push Docker Image
     needs: continuous-integration
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    steps:
-      - uses: actions/checkout@v3
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Connexion à Docker Hub
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push API Image
-        uses: docker/build-push-action@v4
+      # Extraction automatique des tags (latest + SHA court + version sémantique)
+      - name: Extraction des métadonnées Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/weather-api
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=sha-,format=short
+            type=ref,event=branch
+
+      - name: Build et Push de l'image API
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: app/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/weather-api:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

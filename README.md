@@ -35,7 +35,7 @@ noaa-weather-mlops-pipeline/
 ├── data/                # NOAA source data (raw_weather.csv)
 ├── docs/
 │   └── assets/          # Screenshots and execution evidence
-├── mlruns/              # MLflow local backend (experiments & artifacts)
+├── mlruns/              # MLflow local backend (experiments & artifacts) — gitignored, generated at runtime
 ├── monitoring/          # EvidentlyAI drift reports
 ├── src/                 # Core pipeline scripts (ingestion, training, promotion, monitoring)
 ├── tests/               # Unit tests and API smoke tests
@@ -52,14 +52,14 @@ noaa-weather-mlops-pipeline/
 
 ### 1. Data Ingestion and Preparation (`src/ingestion.py`)
 
-- Automated NOAA data retrieval
-- Missing value handling
-- Feature engineering and dataset validation
+- Automated NOAA-compatible data retrieval
+- Missing value handling and structural validation
 
-### 2. Training et Experiment Tracking (`src/train.py`)
+### 2. Training and Experiment Tracking (`src/train.py`)
 
-- Random Forest regression model
-- Hyperparameters, metrics (MSE), and artifacts logged to MLflow
+- Feature engineering (lags, rolling statistics, seasonality)
+- Random Forest regression model with temporal train/test split (80/20)
+- Hyperparameters, metrics (MSE, RMSE, MAE, R²), and artifacts logged to MLflow
 
 ### 3. Automated Model Promotion (`src/promote.py`)
 
@@ -68,9 +68,9 @@ noaa-weather-mlops-pipeline/
 
 ### 4. Prediction API (`app/main.py`)
 
-- FastAPI service loading the Production model dynamically
-- `/predict` endpoint for inference
-- `/health` endpoint for service health checks
+- FastAPI service loading the Production model dynamically via MLflow alias `@production`
+- `POST /v1/predict` endpoint for temperature inference
+- `GET /health` endpoint for service health checks
 
 ### 5. Data Drift Monitoring (`src/monitoring.py`)
 
@@ -79,26 +79,41 @@ noaa-weather-mlops-pipeline/
 
 ---
 
-## Figures et Execution Evidence
+## Execution Evidence
 
-All screenshots below are available in `docs/assets/` and rendered directly on GitHub
+All screenshots below are available in `docs/assets/` and rendered directly on GitHub.
 
-### MLflow Model Registry - Production Model
-![MLflow Registry](docs/assets/mlflow-registry.png)
-
-### CI/CD Pipeline - GitHub Actions Success
+### CI/CD — GitHub Actions Pipeline
 ![GitHub Actions](docs/assets/github-actions-success.png)
 
-### Airflow - Scheduled Retraining DAG
-![Airflow DAG](docs/assets/interface-apache-airflow.png)
+### Airflow — DAG Graph View (5 tasks completed)
+![Airflow DAG Graph](docs/assets/interface-apache-airflow.png)
 
-### FastAPI - Interactive Swagger Documentation
-![Swagger UI](docs/assets/swagger-noaa.png)
+### Airflow — DAG Grid View (run history)
+![Airflow DAG Grid](docs/assets/airflow-dag-grid.png)
 
-### MLflow - Experiment Runs et Metrics
+### MLflow — Experiment Runs
 ![MLflow Runs](docs/assets/mlflow-runs.png)
 
-### Docker - Multi-Container Stack Running
+### MLflow — Run Detail: Parameters & Metrics
+![MLflow Run Metrics](docs/assets/mlflow-run-metrics.png)
+
+### MLflow — Run Artifacts (Feature Importance)
+![MLflow Run Artifacts](docs/assets/mlflow-run-artifacts.png)
+
+### MLflow — Model Registry (@production: Version 6)
+![MLflow Registry](docs/assets/mlflow-registry.png)
+
+### FastAPI — Interactive Swagger Documentation
+![Swagger UI](docs/assets/swagger-noaa.png)
+
+### FastAPI — Live Prediction Response
+![FastAPI Predict Response](docs/assets/fastapi-predict-response.png)
+
+### EvidentlyAI — Data Drift Report
+![Evidently Drift Report](docs/assets/evidently-drift-report.png)
+
+### Docker — Multi-Container Stack Running
 ![Docker Containers](docs/assets/docker-containers.png)
 
 ---
