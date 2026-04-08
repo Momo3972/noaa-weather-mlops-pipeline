@@ -1,7 +1,7 @@
-# Live Demo Guide — NOAA Weather MLOps Pipeline
+# Live Demo Guide - NOAA Weather MLOps Pipeline
 
 This guide walks you through running the complete MLOps pipeline end-to-end, from data ingestion to live model serving.
-The entire stack runs locally via Docker — no cloud account or external service required.
+The entire stack runs locally via Docker - no cloud account or external service required.
 
 ---
 
@@ -13,12 +13,12 @@ The entire stack runs locally via Docker — no cloud account or external servic
 | Docker Compose   | ≥ 2.20    | `docker compose version`|
 | Git              | any       | `git --version`         |
 
-> **Windows users:** Docker Desktop with WSL2 backend is required.
-> **macOS / Linux:** Standard Docker Desktop or Docker Engine works as-is.
+> **Windows users:** Docker Desktop with WSL2 backend is required
+> **macOS / Linux:** Standard Docker Desktop or Docker Engine works as-is
 
 ---
 
-## Step 1 — Clone the Repository
+## Step 1 - Clone the Repository
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/noaa-weather-mlops-pipeline.git
@@ -27,7 +27,7 @@ cd noaa-weather-mlops-pipeline
 
 ---
 
-## Step 2 — Configure the Environment
+## Step 2 - Configure the Environment
 
 ```bash
 cp .env.example .env
@@ -37,9 +37,9 @@ No modifications needed. The default values are fully operational for a local de
 
 ---
 
-## Step 3 — (WSL2 / Windows only) Initialize Volume Permissions
+## Step 3 - (WSL2 / Windows only) Initialize Volume Permissions
 
-> Skip this step on macOS or native Linux.
+> Skip this step on macOS or native Linux
 
 ```bash
 mkdir -p mlruns/artifacts
@@ -48,7 +48,7 @@ chmod -R 777 mlruns/
 
 ---
 
-## Step 4 — Start the Full Stack
+## Step 4 - Start the Full Stack
 
 ```bash
 docker-compose up -d --build
@@ -70,11 +70,11 @@ This command builds and starts 5 services:
 docker ps
 ```
 
-All containers should show `healthy` status.
+All containers should show `healthy` status
 
 ---
 
-## Step 5 — Open the Interfaces
+## Step 5 - Open the Interfaces
 
 Open the following URLs in your browser:
 
@@ -84,7 +84,7 @@ Open the following URLs in your browser:
 
 ---
 
-## Step 6 — Trigger the MLOps Pipeline
+## Step 6 - Trigger the MLOps Pipeline
 
 The DAG is scheduled to run automatically every day at midnight UTC.
 To run it immediately for the demo:
@@ -98,7 +98,7 @@ To run it immediately for the demo:
 The pipeline executes 5 sequential tasks:
 
 ```
-ingest_data → validate_data → train_model → promote_model → run_monitoring
+ingest_data -> validate_data -> train_model -> promote_model -> run_monitoring
 ```
 
 | Task             | What it does                                                        | Duration  |
@@ -109,31 +109,31 @@ ingest_data → validate_data → train_model → promote_model → run_monitori
 | `promote_model`  | Quality Gate check (RMSE ≤ 3.0°C) → promotes model to `@production`| ~5s       |
 | `run_monitoring` | EvidentlyAI drift report comparing reference vs current data        | ~10s      |
 
-All 5 tasks should turn **green** within ~2 minutes.
+All 5 tasks should turn **green** within ~2 minutes
 
 ---
 
-## Step 7 — Verify the Model Registry in MLflow
+## Step 7 - Verify the Model Registry in MLflow
 
 1. Go to **http://localhost:5000**
-2. Click **Experiments** → `NOAA_Weather_Pipeline`
-3. The new run appears with source `airflow` — click it to inspect:
+2. Click **Experiments** -> `NOAA_Weather_Pipeline`
+3. The new run appears with source `airflow` - click it to inspect:
    - `rmse` (target: ≤ 3.0°C to pass the Quality Gate)
    - `mae`, `r2`, `mse`
    - Feature importance artifact
-4. Click **Models** → `Weather_RF_Model`:
+4. Click **Models** -> `Weather_RF_Model`:
    - `@production` alias points to the latest promoted version
-   - This alias is what the API uses to load the model — no code change needed on new versions
+   - This alias is what the API uses to load the model - no code change needed on new versions
 
 ---
 
-## Step 8 — Test the Prediction API
+## Step 8 - Test the Prediction API
 
-### Option A — Swagger UI (no terminal needed)
+### Option A - Swagger UI (no terminal needed)
 
 Go to **http://localhost:8001/docs**
 
-1. Click **GET /health** → **Try it out** → **Execute**
+1. Click **GET /health** -> **Try it out** → **Execute**
    Expected response:
    ```json
    {
@@ -144,7 +144,7 @@ Go to **http://localhost:8001/docs**
    }
    ```
 
-2. Click **POST /v1/predict** → **Try it out** → fill in the body:
+2. Click **POST /v1/predict** -> **Try it out** -> fill in the body:
    ```json
    {
      "temp_today": 18.5,
@@ -163,7 +163,7 @@ Go to **http://localhost:8001/docs**
    }
    ```
 
-### Option B — curl
+### Option B - curl
 
 ```bash
 # Health check
@@ -177,10 +177,10 @@ curl -X POST http://localhost:8001/v1/predict \
 
 ---
 
-## Step 9 — Inspect the Drift Monitoring Report
+## Step 9 - Inspect the Drift Monitoring Report
 
 The `run_monitoring` task generates an EvidentlyAI HTML report comparing the distribution
-of the first 365 days (reference) vs the last 365 days (current) of the dataset.
+of the first 365 days (reference) vs the last 365 days (current) of the dataset
 
 ```bash
 # Open the drift report in your browser
@@ -190,13 +190,13 @@ start monitoring/drift_report.html      # Windows
 ```
 
 The report shows whether the temperature distribution has significantly shifted,
-which would trigger a retraining recommendation on the next pipeline run.
+which would trigger a retraining recommendation on the next pipeline run
 
 ---
 
-## Step 10 — Run the Test Suite
+## Step 10 - Run the Test Suite
 
-Unit tests run without Docker (mock model — no MLflow dependency):
+Unit tests run without Docker (mock model - no MLflow dependency):
 
 ```bash
 pip install -r requirements.txt
