@@ -35,7 +35,7 @@ noaa-weather-mlops-pipeline/
 ├── data/                # NOAA source data (raw_weather.csv)
 ├── docs/
 │   └── assets/          # Screenshots and execution evidence
-├── mlruns/              # MLflow local backend (experiments & artifacts) — gitignored, generated at runtime
+├── mlruns/              # MLflow local backend (experiments & artifacts) - gitignored, generated at runtime
 ├── monitoring/          # EvidentlyAI drift reports
 ├── src/                 # Core pipeline scripts (ingestion, training, promotion, monitoring)
 ├── tests/               # Unit tests and API smoke tests
@@ -50,18 +50,18 @@ noaa-weather-mlops-pipeline/
 
 ## Technical Components
 
-### 1. Data Ingestion and Preparation (`src/ingestion.py`)
+### 1. Data Ingestion and preparation (`src/ingestion.py`)
 
 - Automated NOAA-compatible data retrieval
 - Missing value handling and structural validation
 
-### 2. Training and Experiment Tracking (`src/train.py`)
+### 2. Training and experiment tracking (`src/train.py`)
 
 - Feature engineering (lags, rolling statistics, seasonality)
 - Random Forest regression model with temporal train/test split (80/20)
 - Hyperparameters, metrics (MSE, RMSE, MAE, R²), and artifacts logged to MLflow
 
-### 3. Automated Model Promotion (`src/promote.py`)
+### 3. Automated model promotion (`src/promote.py`)
 
 - Uses `MlflowClient` to identify the latest validated model
 - Automatically assigns the `@production` alias in the MLflow Model Registry
@@ -81,39 +81,39 @@ noaa-weather-mlops-pipeline/
 
 ## Execution Evidence
 
-All screenshots below are available in `docs/assets/` and rendered directly on GitHub.
+All screenshots below are available in `docs/assets/` and rendered directly on GitHub :
 
-### CI/CD — GitHub Actions Pipeline
+### CI/CD - GitHub Actions Pipeline
 ![GitHub Actions](docs/assets/github-actions-success.png)
 
-### Airflow — DAG Graph View (5 tasks completed)
+### Airflow - DAG Graph View (5 tasks completed)
 ![Airflow DAG Graph](docs/assets/interface-apache-airflow.png)
 
-### Airflow — DAG Grid View (run history)
+### Airflow - DAG Grid View (run history)
 ![Airflow DAG Grid](docs/assets/airflow-dag-grid.png)
 
-### MLflow — Experiment Runs
+### MLflow - Experiment Runs
 ![MLflow Runs](docs/assets/mlflow-runs.png)
 
-### MLflow — Run Detail: Parameters & Metrics
+### MLflow - Run Detail: Parameters & Metrics
 ![MLflow Run Metrics](docs/assets/mlflow-run-metrics.png)
 
-### MLflow — Run Artifacts (Feature Importance)
+### MLflow - Run Artifacts (Feature Importance)
 ![MLflow Run Artifacts](docs/assets/mlflow-run-artifacts.png)
 
-### MLflow — Model Registry (@production: Version 6)
+### MLflow - Model Registry (@production: Version 6)
 ![MLflow Registry](docs/assets/mlflow-registry.png)
 
-### FastAPI — Interactive Swagger Documentation
+### FastAPI - Interactive Swagger Documentation
 ![Swagger UI](docs/assets/swagger-noaa.png)
 
-### FastAPI — Live Prediction Response
+### FastAPI - Live Prediction Response
 ![FastAPI Predict Response](docs/assets/fastapi-predict-response.png)
 
-### EvidentlyAI — Data Drift Report
+### EvidentlyAI - Data Drift Report
 ![Evidently Drift Report](docs/assets/evidently-drift-report.png)
 
-### Docker — Multi-Container Stack Running
+### Docker - Multi-Container Stack Running
 ![Docker Containers](docs/assets/docker-containers.png)
 
 ---
