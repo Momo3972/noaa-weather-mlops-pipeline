@@ -1,0 +1,19 @@
+# ============================================================
+# Hadolint — Configuration du linter Dockerfile
+# ============================================================
+# Règles désactivées intentionnellement :
+#
+# DL3008 : apt-get install sans version épinglée
+#   → curl est un outil système utilitaire ; le tag Python de base
+#     (python:3.11-slim) est lui-même versionné, ce qui garantit
+#     la reproductibilité globale de l'image.
+#
+# DL3013 : pip install sans version épinglée
+#   → seul `pip` lui-même est mis à jour (--upgrade pip).
+#     Toutes les dépendances applicatives sont épinglées via
+#     requirements.txt (-r requirements.txt).
+# ============================================================
+
+ignore:
+  - DL3008
+  - DL3013

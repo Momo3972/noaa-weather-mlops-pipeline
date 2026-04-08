@@ -58,11 +58,13 @@ jobs:
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: app/Dockerfile
+          config: .hadolint.yaml
 
       - name: Scan Dockerfile principal (Hadolint)
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: Dockerfile
+          config: .hadolint.yaml
 
   # ============================================================
   # JOB 2 — Build & Push Docker (uniquement sur push vers main)
